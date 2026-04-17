@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>タスクボード</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Segoe UI', 'Hiragino Sans', 'Meiryo', sans-serif; background: #f0f2f5; color: #1a1a2e; min-height: 100vh; }
@@ -15,7 +16,6 @@
   .nav-link:hover { color: rgba(255,255,255,0.9); }
   .nav-link.active { color: white; border-bottom-color: #667eea; }
 
-  /* ===== PAGE ===== */
   .page { display: none; }
   .page.active { display: block; }
 
@@ -29,18 +29,15 @@
   .container { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
   .container-sm { max-width: 640px; margin: 0 auto; padding: 24px 16px; }
 
-  /* Summary */
   .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
   .s-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
   .s-label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
   .s-value { font-size: 28px; font-weight: 700; }
   .green { color: #10b981; } .orange { color: #f59e0b; } .red { color: #ef4444; } .blue { color: #667eea; } .purple { color: #764ba2; }
 
-  /* Section */
   .section { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 24px; }
   .section-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
 
-  /* Week Chart */
   .week-nav { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
   .week-nav button { background: #667eea; color: white; border: none; border-radius: 6px; padding: 6px 14px; cursor: pointer; font-size: 13px; }
   .week-nav button:hover { background: #5a6fd6; }
@@ -54,7 +51,6 @@
   .fill-high { background: linear-gradient(90deg, #ef4444, #f87171); }
   .chart-free { font-size: 12px; color: #888; margin-left: 8px; flex-shrink: 0; width: 80px; }
 
-  /* Table */
   .t-table { width: 100%; border-collapse: collapse; }
   .t-table th { text-align: left; font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 12px; border-bottom: 2px solid #f0f2f5; }
   .t-table td { padding: 12px; border-bottom: 1px solid #f0f2f5; font-size: 14px; vertical-align: middle; }
@@ -62,7 +58,6 @@
   .t-table .actions button { background: none; border: none; cursor: pointer; font-size: 16px; padding: 4px 6px; border-radius: 4px; }
   .t-table .actions button:hover { background: #f0f2f5; }
 
-  /* Badges */
   .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
   .b-high { background: #fde8e8; color: #e53e3e; }
   .b-mid { background: #fef3c7; color: #d97706; }
@@ -71,13 +66,11 @@
   .b-inprogress { background: #dbeafe; color: #2563eb; }
   .b-done { background: #d1fae5; color: #059669; }
 
-  /* Pending banner */
   .pending-banner { background: linear-gradient(135deg, #fef3c7, #fde68a); border-radius: 12px; padding: 16px 24px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
   .pending-banner strong { font-size: 15px; }
   .pending-banner button { background: #d97706; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; }
   .pending-banner button:hover { background: #b45309; }
 
-  /* Modal */
   .modal-bg { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; justify-content: center; align-items: center; }
   .modal-bg.open { display: flex; }
   .modal { background: white; border-radius: 16px; padding: 32px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
@@ -95,7 +88,6 @@
   .btn-s { background: #e2e8f0; color: #555; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-size: 14px; }
   .btn-s:hover { background: #cbd5e1; }
 
-  /* ===== REQUEST PAGE ===== */
   .req-header { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 24px 32px; text-align: center; }
   .req-header h2 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
   .req-header p { font-size: 14px; opacity: 0.9; }
@@ -116,19 +108,17 @@
 
   .btn-req { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border: none; padding: 12px 28px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s; }
   .btn-req:hover { opacity: 0.9; transform: translateY(-1px); }
-  .btn-sub { background: #e2e8f0; color: #555; border: none; padding: 12px 28px; border-radius: 8px; cursor: pointer; font-size: 14px; }
-  .btn-sub:hover { background: #cbd5e1; }
 
   .center { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
   .empty { text-align: center; color: #aaa; padding: 24px; font-size: 14px; }
 
   .success-msg { background: #d1fae5; color: #059669; padding: 16px 24px; border-radius: 12px; text-align: center; margin-bottom: 20px; font-weight: 600; display: none; }
 
-  /* Notification */
   .notif { position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 12px 20px; border-radius: 8px; font-size: 14px; z-index: 2000; display: none; animation: slideIn 0.3s ease; }
   @keyframes slideIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-  /* Responsive */
+  .loading { text-align: center; padding: 40px; color: #aaa; }
+
   @media (max-width: 600px) {
     .nav { padding: 0 12px; }
     .nav-brand { font-size: 15px; margin-right: 16px; }
@@ -142,34 +132,27 @@
 </head>
 <body>
 
-<!-- ===== ナビゲーション ===== -->
+<!-- ナビゲーション -->
 <nav class="nav">
   <div class="nav-brand">タスクボード</div>
   <a class="nav-link active" href="#dashboard" onclick="navigate('dashboard')">ダッシュボード</a>
   <a class="nav-link" href="#request" onclick="navigate('request')">タスク依頼</a>
 </nav>
 
-<!-- ===== ページ: ダッシュボード ===== -->
+<!-- ページ: ダッシュボード -->
 <div class="page active" id="page-dashboard">
   <div class="dash-header">
     <h2>ダッシュボード</h2>
     <div class="dash-actions">
       <button class="dash-btn" onclick="openTaskModal()">+ タスク追加</button>
-      <button class="dash-btn" onclick="exportTasks()">エクスポート</button>
     </div>
   </div>
-
   <div class="container">
-    <!-- 未承認の依頼バナー -->
     <div class="pending-banner" id="pendingBanner" style="display:none;">
       <div><strong id="pendingCount">0</strong> <span>件の新しい依頼があります</span></div>
       <button onclick="reviewPending()">確認する</button>
     </div>
-
-    <!-- サマリー -->
     <div class="summary" id="summary"></div>
-
-    <!-- 週間チャート -->
     <div class="section">
       <div class="section-title">週間リソース状況</div>
       <div class="week-nav">
@@ -179,8 +162,6 @@
       </div>
       <div id="weekChart"></div>
     </div>
-
-    <!-- タスク一覧 -->
     <div class="section">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
         <div class="section-title" style="margin-bottom:0;">タスク一覧</div>
@@ -192,42 +173,28 @@
       </div>
       <div style="overflow-x:auto;">
         <table class="t-table">
-          <thead>
-            <tr>
-              <th>タスク名</th>
-              <th>優先度</th>
-              <th>工数/日</th>
-              <th>期間</th>
-              <th>ステータス</th>
-              <th>依頼元</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="taskBody"></tbody>
+          <thead><tr><th>タスク名</th><th>優先度</th><th>工数/日</th><th>期間</th><th>ステータス</th><th>依頼元</th><th></th></tr></thead>
+          <tbody id="taskBody"><tr><td colspan="7" class="loading">読み込み中...</td></tr></tbody>
         </table>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ===== ページ: タスク依頼 ===== -->
+<!-- ページ: タスク依頼 -->
 <div class="page" id="page-request">
   <div class="req-header">
     <h2>タスク依頼フォーム</h2>
     <p>依頼したいタスクを入力してください</p>
   </div>
-
   <div class="container-sm">
     <div class="success-msg" id="successMsg">依頼を送信しました！ダッシュボードに反映されます。</div>
-
     <div class="card">
       <div class="card-title">新しい依頼</div>
-
       <div class="fg">
         <label>タスク名 <span class="req">*</span></label>
         <input type="text" id="rName" placeholder="例：コーポレートサイトのリニューアル">
       </div>
-
       <div class="fg">
         <label>カテゴリ</label>
         <div class="cat-select" id="catSelect">
@@ -239,7 +206,6 @@
           <div class="cat-tag" data-v="その他">その他</div>
         </div>
       </div>
-
       <div class="fg">
         <label>優先度</label>
         <select id="rPriority">
@@ -248,87 +214,50 @@
           <option value="low">低 — 手が空いたときに</option>
         </select>
       </div>
-
       <div class="fg">
         <label>見積もり工数（1日あたり何時間）</label>
         <input type="number" id="rHours" min="0.5" max="8" step="0.5" value="1">
         <div class="hint">不明な場合はそのままで大丈夫です（担当者が調整します）</div>
       </div>
-
       <div class="fg">
         <label>希望開始日</label>
         <input type="date" id="rStart">
       </div>
-
       <div class="fg">
         <label>希望期限</label>
         <input type="date" id="rDeadline">
       </div>
-
       <div class="fg">
         <label>詳細・補足</label>
         <textarea id="rNote" placeholder="背景や具体的な要件があれば記入してください"></textarea>
       </div>
-
       <div class="fg">
         <label>依頼者名</label>
         <input type="text" id="rRequester" placeholder="例：田中">
       </div>
-
       <div class="center">
         <button class="btn-req" onclick="submitRequest()">依頼を送信する</button>
       </div>
     </div>
-
-    <!-- 送信済みリスト -->
     <div class="card">
       <div class="card-title">送信済みの依頼（<span id="rCount">0</span>件）</div>
-      <div id="rList"><div class="empty">まだ依頼はありません</div></div>
+      <div id="rList"><div class="loading">読み込み中...</div></div>
     </div>
   </div>
 </div>
 
-<!-- ===== モーダル: タスク追加/編集 ===== -->
+<!-- モーダル: タスク追加/編集 -->
 <div class="modal-bg" id="taskModal">
   <div class="modal">
     <h2 id="mTitle">タスク追加</h2>
     <input type="hidden" id="mEditId">
-    <div class="fg">
-      <label>タスク名 <span class="req">*</span></label>
-      <input type="text" id="mName" placeholder="例：LP制作">
-    </div>
-    <div class="fg">
-      <label>優先度</label>
-      <select id="mPriority">
-        <option value="high">高</option>
-        <option value="mid" selected>中</option>
-        <option value="low">低</option>
-      </select>
-    </div>
-    <div class="fg">
-      <label>1日あたりの工数（時間）</label>
-      <input type="number" id="mHours" min="0.5" max="8" step="0.5" value="1">
-    </div>
-    <div class="fg">
-      <label>開始日</label>
-      <input type="date" id="mStart">
-    </div>
-    <div class="fg">
-      <label>期限</label>
-      <input type="date" id="mEnd">
-    </div>
-    <div class="fg">
-      <label>ステータス</label>
-      <select id="mStatus">
-        <option value="notstarted">未着手</option>
-        <option value="inprogress">進行中</option>
-        <option value="done">完了</option>
-      </select>
-    </div>
-    <div class="fg">
-      <label>メモ</label>
-      <textarea id="mNote" placeholder="補足情報があれば"></textarea>
-    </div>
+    <div class="fg"><label>タスク名 <span class="req">*</span></label><input type="text" id="mName" placeholder="例：LP制作"></div>
+    <div class="fg"><label>優先度</label><select id="mPriority"><option value="high">高</option><option value="mid" selected>中</option><option value="low">低</option></select></div>
+    <div class="fg"><label>1日あたりの工数（時間）</label><input type="number" id="mHours" min="0.5" max="8" step="0.5" value="1"></div>
+    <div class="fg"><label>開始日</label><input type="date" id="mStart"></div>
+    <div class="fg"><label>期限</label><input type="date" id="mEnd"></div>
+    <div class="fg"><label>ステータス</label><select id="mStatus"><option value="notstarted">未着手</option><option value="inprogress">進行中</option><option value="done">完了</option></select></div>
+    <div class="fg"><label>メモ</label><textarea id="mNote" placeholder="補足情報があれば"></textarea></div>
     <div class="modal-actions">
       <button class="btn-s" onclick="closeTaskModal()">キャンセル</button>
       <button class="btn-p" onclick="saveTask()">保存</button>
@@ -336,7 +265,7 @@
   </div>
 </div>
 
-<!-- ===== モーダル: 依頼確認 ===== -->
+<!-- モーダル: 依頼確認 -->
 <div class="modal-bg" id="pendingModal">
   <div class="modal" style="max-width:600px;">
     <h2>新しい依頼</h2>
@@ -349,22 +278,42 @@
   </div>
 </div>
 
-<!-- 通知 -->
 <div class="notif" id="notif"></div>
 
 <script>
-// ===== ストレージ =====
-const TASKS_KEY = 'tb_tasks';
-const REQUESTS_KEY = 'tb_requests';
+// ===== Supabase 初期化 =====
+const SUPABASE_URL = 'https://rpxbxuguieiajnmpgxph.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJweGJ4dWd1aWVpYWpubXBneHBoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0Mzg5MDQsImV4cCI6MjA5MjAxNDkwNH0.CJGdi7nGLes-rNBXtXqY5iSZ-glXtfYywriHL1st1TY';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 const HOURS_PER_DAY = 8;
 let weekOffset = 0;
 let taskFilter = 'active';
 let selCat = '';
+let cachedTasks = [];
+let cachedRequests = [];
 
-function loadTasks() { try { return JSON.parse(localStorage.getItem(TASKS_KEY)) || []; } catch { return []; } }
-function saveTasks(t) { localStorage.setItem(TASKS_KEY, JSON.stringify(t)); }
-function loadRequests() { try { return JSON.parse(localStorage.getItem(REQUESTS_KEY)) || []; } catch { return []; } }
-function saveRequests(r) { localStorage.setItem(REQUESTS_KEY, JSON.stringify(r)); }
+// ===== データ取得 =====
+async function fetchTasks() {
+  const { data, error } = await sb.from('tasks').select('*').order('created_at', { ascending: false });
+  if (error) { console.error(error); return []; }
+  return data || [];
+}
+
+async function fetchRequests() {
+  const { data, error } = await sb.from('requests').select('*').order('created_at', { ascending: false });
+  if (error) { console.error(error); return []; }
+  return data || [];
+}
+
+// ===== リアルタイム購読 =====
+sb.channel('realtime-all')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => { loadDashboard(); })
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'requests' }, () => {
+    loadDashboard();
+    loadRequestList();
+  })
+  .subscribe();
 
 // ===== ナビゲーション =====
 function navigate(page) {
@@ -373,23 +322,20 @@ function navigate(page) {
   document.getElementById('page-' + page).classList.add('active');
   document.querySelector(`[href="#${page}"]`).classList.add('active');
   window.location.hash = page;
-  if (page === 'dashboard') renderDashboard();
-  if (page === 'request') renderRequestList();
+  if (page === 'dashboard') loadDashboard();
+  if (page === 'request') loadRequestList();
 }
-
-window.addEventListener('hashchange', () => {
-  const h = window.location.hash.replace('#', '') || 'dashboard';
-  navigate(h);
-});
+window.addEventListener('hashchange', () => navigate(window.location.hash.replace('#','') || 'dashboard'));
 
 // ===== ダッシュボード =====
-function renderDashboard() {
-  const tasks = loadTasks();
-  const requests = loadRequests().filter(r => r.status === 'pending');
-  renderPendingBanner(requests);
-  renderSummary(tasks, requests);
-  renderWeekChart(tasks);
-  renderTaskTable(tasks);
+async function loadDashboard() {
+  cachedTasks = await fetchTasks();
+  cachedRequests = await fetchRequests();
+  const pending = cachedRequests.filter(r => r.status === 'pending');
+  renderPendingBanner(pending);
+  renderSummary(cachedTasks, pending);
+  renderWeekChart(cachedTasks);
+  renderTaskTable(cachedTasks);
 }
 
 function renderPendingBanner(pending) {
@@ -402,10 +348,9 @@ function renderPendingBanner(pending) {
 function renderSummary(tasks, pending) {
   const active = tasks.filter(t => t.status !== 'done');
   const today = isoToday();
-  const todayH = active.reduce((s, t) => isInRange(today, t.start, t.end) ? s + (t.hours||0) : s, 0);
+  const todayH = active.reduce((s, t) => isInRange(today, t.start_date, t.end_date) ? s + (Number(t.hours)||0) : s, 0);
   const free = Math.max(0, HOURS_PER_DAY - todayH);
   const pct = Math.round(todayH / HOURS_PER_DAY * 100);
-
   document.getElementById('summary').innerHTML = `
     <div class="s-card"><div class="s-label">本日の空きリソース</div><div class="s-value ${free>=4?'green':free>=2?'orange':'red'}">${free}h / ${HOURS_PER_DAY}h</div></div>
     <div class="s-card"><div class="s-label">進行中タスク</div><div class="s-value blue">${active.length}</div></div>
@@ -420,14 +365,13 @@ function renderWeekChart(tasks) {
   const mon = getMonday(weekOffset);
   const days = Array.from({length:7}, (_,i) => { const d = new Date(mon); d.setDate(d.getDate()+i); return d; });
   document.getElementById('weekLabel').textContent = `${fmt(days[0])} 〜 ${fmt(days[6])}`;
-
   const dnames = ['日','月','火','水','木','金','土'];
   let html = '';
   days.forEach(day => {
     const ds = isoDate(day);
     const dn = dnames[day.getDay()];
     const isWe = day.getDay()===0||day.getDay()===6;
-    const h = active.reduce((s,t) => isInRange(ds,t.start,t.end)?s+(t.hours||0):s, 0);
+    const h = active.reduce((s,t) => isInRange(ds,t.start_date,t.end_date)?s+(Number(t.hours)||0):s, 0);
     const p = Math.min(100, h/HOURS_PER_DAY*100);
     const cls = p<=50?'fill-low':p<=80?'fill-mid':'fill-high';
     const fr = Math.max(0, HOURS_PER_DAY-h);
@@ -466,7 +410,7 @@ function renderTaskTable(tasks) {
 
   let html = '';
   sorted.forEach(t => {
-    const period = (t.start||'?')+' 〜 '+(t.end||'?');
+    const period = (t.start_date||'?')+' 〜 '+(t.end_date||'?');
     html += `<tr style="${t.status==='done'?'opacity:0.5':''}">
       <td><strong>${esc(t.name)}</strong>${t.note?'<br><span style="font-size:12px;color:#888;">'+esc(t.note)+'</span>':''}${t.category?'<br><span style="font-size:11px;color:#667eea;">'+esc(t.category)+'</span>':''}</td>
       <td><span class="badge ${PC[t.priority]}">${PL[t.priority]}</span></td>
@@ -484,8 +428,8 @@ function renderTaskTable(tasks) {
   document.getElementById('taskBody').innerHTML = html;
 }
 
-function setFilter(f) { taskFilter = f; renderTaskTable(loadTasks()); }
-function changeWeek(d) { weekOffset += d; renderWeekChart(loadTasks()); }
+function setFilter(f) { taskFilter = f; renderTaskTable(cachedTasks); }
+function changeWeek(d) { weekOffset += d; renderWeekChart(cachedTasks); }
 
 // ===== タスクCRUD =====
 function openTaskModal(data) {
@@ -494,8 +438,8 @@ function openTaskModal(data) {
   document.getElementById('mName').value = data ? data.name : '';
   document.getElementById('mPriority').value = data ? data.priority : 'mid';
   document.getElementById('mHours').value = data ? data.hours : 1;
-  document.getElementById('mStart').value = data ? (data.start||'') : isoToday();
-  document.getElementById('mEnd').value = data ? (data.end||'') : '';
+  document.getElementById('mStart').value = data ? (data.start_date||'') : isoToday();
+  document.getElementById('mEnd').value = data ? (data.end_date||'') : '';
   document.getElementById('mStatus').value = data ? data.status : 'notstarted';
   document.getElementById('mNote').value = data ? (data.note||'') : '';
   document.getElementById('taskModal').classList.add('open');
@@ -503,63 +447,52 @@ function openTaskModal(data) {
 function closeTaskModal() { document.getElementById('taskModal').classList.remove('open'); }
 
 function editTask(id) {
-  const t = loadTasks().find(x => x.id === id);
+  const t = cachedTasks.find(x => x.id === id);
   if (t) openTaskModal(t);
 }
 
-function saveTask() {
+async function saveTask() {
   const name = document.getElementById('mName').value.trim();
   if (!name) { alert('タスク名を入力してください'); return; }
-  const tasks = loadTasks();
   const editId = document.getElementById('mEditId').value;
-  const data = {
-    id: editId || 'task_' + Date.now(),
+  const row = {
     name,
     priority: document.getElementById('mPriority').value,
     hours: parseFloat(document.getElementById('mHours').value) || 1,
-    start: document.getElementById('mStart').value,
-    end: document.getElementById('mEnd').value,
+    start_date: document.getElementById('mStart').value || null,
+    end_date: document.getElementById('mEnd').value || null,
     status: document.getElementById('mStatus').value,
-    note: document.getElementById('mNote').value.trim(),
+    note: document.getElementById('mNote').value.trim() || null,
   };
+
   if (editId) {
-    const idx = tasks.findIndex(t => t.id === editId);
-    if (idx >= 0) { data.requester = tasks[idx].requester; data.category = tasks[idx].category; tasks[idx] = data; }
-  } else { tasks.push(data); }
-  saveTasks(tasks);
+    await sb.from('tasks').update(row).eq('id', editId);
+  } else {
+    row.id = 'task_' + Date.now();
+    await sb.from('tasks').insert(row);
+  }
   closeTaskModal();
-  renderDashboard();
+  await loadDashboard();
   notify('タスクを保存しました');
 }
 
-function deleteTask(id) {
+async function deleteTask(id) {
   if (!confirm('このタスクを削除しますか？')) return;
-  saveTasks(loadTasks().filter(t => t.id !== id));
-  renderDashboard();
+  await sb.from('tasks').delete().eq('id', id);
+  await loadDashboard();
   notify('タスクを削除しました');
-}
-
-function exportTasks() {
-  const json = JSON.stringify(loadTasks(), null, 2);
-  const blob = new Blob([json], {type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'tasks_'+isoToday()+'.json';
-  a.click();
-  notify('エクスポートしました');
 }
 
 // ===== 依頼の確認 =====
 function reviewPending() {
-  const pending = loadRequests().filter(r => r.status === 'pending');
+  const pending = cachedRequests.filter(r => r.status === 'pending');
   const PL = {high:'高',mid:'中',low:'低'};
   const PC = {high:'b-high',mid:'b-mid',low:'b-low'};
-
   let html = '';
   pending.forEach((r, i) => {
     html += `<div style="border:1px solid #eee; border-radius:8px; padding:14px; margin-bottom:10px;">
-      <div style="display:flex; justify-content:space-between; align-items:start;">
-        <div>
+      <div style="display:flex; justify-content:space-between; align-items:start; gap:8px;">
+        <div style="flex:1;">
           <strong>${esc(r.name)}</strong> <span class="badge ${PC[r.priority]}">${PL[r.priority]}</span>
           ${r.category?'<span class="badge" style="background:#eef;color:#667eea;margin-left:4px;">'+esc(r.category)+'</span>':''}
           <div style="font-size:12px;color:#888;margin-top:4px;">
@@ -568,8 +501,8 @@ function reviewPending() {
           ${r.description?'<div style="font-size:13px;color:#555;margin-top:6px;">'+esc(r.description)+'</div>':''}
         </div>
         <div style="display:flex;gap:4px;flex-shrink:0;">
-          <button onclick="acceptRequest(${i})" style="background:#10b981;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;">承認</button>
-          <button onclick="dismissRequest(${i})" style="background:#e2e8f0;color:#555;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;">却下</button>
+          <button onclick="acceptRequest('${r.id}')" style="background:#10b981;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;">承認</button>
+          <button onclick="dismissRequest('${r.id}')" style="background:#e2e8f0;color:#555;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;">却下</button>
         </div>
       </div>
     </div>`;
@@ -580,62 +513,42 @@ function reviewPending() {
 }
 function closePendingModal() { document.getElementById('pendingModal').classList.remove('open'); }
 
-function acceptRequest(idx) {
-  const reqs = loadRequests();
-  const pending = reqs.filter(r => r.status === 'pending');
-  const r = pending[idx];
+async function acceptRequest(reqId) {
+  const r = cachedRequests.find(x => x.id === reqId);
   if (!r) return;
-
-  const tasks = loadTasks();
-  tasks.push({
+  await sb.from('tasks').insert({
     id: 'task_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
     name: r.name, priority: r.priority, hours: r.hours,
-    start: r.startDate || '', end: r.deadline || '',
-    status: 'notstarted', note: r.description || '',
-    requester: r.requester || '', category: r.category || '',
+    start_date: r.start_date || null, end_date: r.deadline || null,
+    status: 'notstarted', note: r.description || null,
+    requester: r.requester || null, category: r.category || null,
   });
-  saveTasks(tasks);
-
-  const origIdx = reqs.indexOf(r);
-  reqs[origIdx].status = 'accepted';
-  saveRequests(reqs);
-
+  await sb.from('requests').update({ status: 'accepted' }).eq('id', reqId);
+  await loadDashboard();
   reviewPending();
-  renderDashboard();
   notify('依頼を承認しました');
 }
 
-function dismissRequest(idx) {
-  const reqs = loadRequests();
-  const pending = reqs.filter(r => r.status === 'pending');
-  const r = pending[idx];
-  if (!r) return;
-  const origIdx = reqs.indexOf(r);
-  reqs[origIdx].status = 'dismissed';
-  saveRequests(reqs);
+async function dismissRequest(reqId) {
+  await sb.from('requests').update({ status: 'dismissed' }).eq('id', reqId);
+  await loadDashboard();
   reviewPending();
-  renderDashboard();
 }
 
-function acceptAllPending() {
-  const reqs = loadRequests();
-  const tasks = loadTasks();
-  reqs.forEach(r => {
-    if (r.status === 'pending') {
-      tasks.push({
-        id: 'task_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
-        name: r.name, priority: r.priority, hours: r.hours,
-        start: r.startDate || '', end: r.deadline || '',
-        status: 'notstarted', note: r.description || '',
-        requester: r.requester || '', category: r.category || '',
-      });
-      r.status = 'accepted';
-    }
-  });
-  saveTasks(tasks);
-  saveRequests(reqs);
+async function acceptAllPending() {
+  const pending = cachedRequests.filter(r => r.status === 'pending');
+  for (const r of pending) {
+    await sb.from('tasks').insert({
+      id: 'task_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+      name: r.name, priority: r.priority, hours: r.hours,
+      start_date: r.start_date || null, end_date: r.deadline || null,
+      status: 'notstarted', note: r.description || null,
+      requester: r.requester || null, category: r.category || null,
+    });
+    await sb.from('requests').update({ status: 'accepted' }).eq('id', r.id);
+  }
   closePendingModal();
-  renderDashboard();
+  await loadDashboard();
   notify('すべての依頼を承認しました');
 }
 
@@ -648,25 +561,24 @@ document.querySelectorAll('.cat-tag').forEach(tag => {
   });
 });
 
-function submitRequest() {
+async function submitRequest() {
   const name = document.getElementById('rName').value.trim();
   if (!name) { alert('タスク名を入力してください'); return; }
 
-  const reqs = loadRequests();
-  reqs.push({
+  const { error } = await sb.from('requests').insert({
     id: 'req_' + Date.now(),
     name,
-    category: selCat || '',
+    category: selCat || null,
     priority: document.getElementById('rPriority').value,
     hours: parseFloat(document.getElementById('rHours').value) || 1,
-    startDate: document.getElementById('rStart').value,
-    deadline: document.getElementById('rDeadline').value,
-    description: document.getElementById('rNote').value.trim(),
+    start_date: document.getElementById('rStart').value || null,
+    deadline: document.getElementById('rDeadline').value || null,
+    description: document.getElementById('rNote').value.trim() || null,
     requester: document.getElementById('rRequester').value.trim() || '代表',
     status: 'pending',
-    createdAt: new Date().toISOString(),
   });
-  saveRequests(reqs);
+
+  if (error) { alert('送信に失敗しました: ' + error.message); return; }
 
   document.getElementById('rName').value = '';
   document.getElementById('rPriority').value = 'mid';
@@ -682,12 +594,12 @@ function submitRequest() {
   msg.style.display = 'block';
   setTimeout(() => { msg.style.display = 'none'; }, 3000);
 
-  renderRequestList();
+  await loadRequestList();
   notify('依頼を送信しました');
 }
 
-function renderRequestList() {
-  const reqs = loadRequests();
+async function loadRequestList() {
+  const reqs = await fetchRequests();
   const pending = reqs.filter(r => r.status === 'pending');
   document.getElementById('rCount').textContent = pending.length;
 
@@ -695,7 +607,6 @@ function renderRequestList() {
     document.getElementById('rList').innerHTML = '<div class="empty">送信済みの依頼はありません</div>';
     return;
   }
-
   const PL = {high:'高',mid:'中',low:'低'};
   const PC = {high:'b-high',mid:'b-mid',low:'b-low'};
   let html = '';
@@ -711,10 +622,9 @@ function renderRequestList() {
   document.getElementById('rList').innerHTML = html;
 }
 
-function cancelRequest(id) {
-  const reqs = loadRequests().filter(r => r.id !== id);
-  saveRequests(reqs);
-  renderRequestList();
+async function cancelRequest(id) {
+  await sb.from('requests').delete().eq('id', id);
+  await loadRequestList();
 }
 
 // ===== ユーティリティ =====
